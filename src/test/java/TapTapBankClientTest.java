@@ -69,7 +69,7 @@ public class TapTapBankClientTest {
         // Create a mock HttpClient
         HttpClient httpClient = Mockito.mock(HttpClient.class);
 
-        // Create a mock HttpResponse with a 200 status
+        // Create a mock HttpResponse with a 500 status
         HttpResponse<String> response = Mockito.mock(HttpResponse.class);
         when(response.statusCode()).thenReturn(500);
         when(response.body()).thenReturn("<!DOCTYPE html> <html lang=\"en\"> <head> <meta charset=\"utf-8\"> <title>Error</title> </head> <body> <pre>SQLITE_CONSTRAINT: UNIQUE constraint failed: user.email</pre> </body> </html>");
@@ -90,7 +90,6 @@ public class TapTapBankClientTest {
 
 
     private User createUniqueUser() {
-        // Create a User with an empty last name
         return new User("John", "Smith", "john@example.com", "password123");
     }
 
