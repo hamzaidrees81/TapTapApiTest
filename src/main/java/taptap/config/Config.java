@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class TaptapHttpClientConfigs {
+public class Config {
 
     String host;
     String port;

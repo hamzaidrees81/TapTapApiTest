@@ -1,9 +1,11 @@
 package taptap.test;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import taptap.client.TaptapBankClient;
 import taptap.client.impl.TapTapBankClientImpl;
 import taptap.config.ConfigurationLoader;
-import taptap.config.TaptapHttpClientConfigs;
+import taptap.config.Config;
 import taptap.exception.TapTapClientException;
 import taptap.model.Recipient;
 import taptap.model.Transaction;
@@ -12,11 +14,10 @@ import taptap.model.User;
 import java.net.http.HttpClient;
 import java.time.Duration;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Main {
-	private static final Logger logger = Logger.getLogger(Main.class.getName());
+
+	private static final Logger logger = LoggerFactory.getLogger(Main.class.getName());
 
 	public static void main(String[] args) {
 
@@ -27,12 +28,13 @@ public class Main {
 	public void test() throws TapTapClientException
 	{
 
-		logger.log(Level.INFO,"Initiating tests");
+		logger.info("Initiating tests");
+		logger.debug("Initiating tests in debug");
 
 		//load configurations
 		String configFile = "config.yaml";
 
-		TaptapHttpClientConfigs clientConfigs = null;
+		Config clientConfigs = null;
 		clientConfigs = ConfigurationLoader.loadConfiguration(configFile);
 
 		//create http client
@@ -46,7 +48,7 @@ public class Main {
 		TaptapBankClient tapTapBankClient = new TapTapBankClientImpl(clientConfigs,httpClient);
 		tapTapBankClient.addUser(user);
 		tapTapBankClient.makeTransaction(user,transaction);
-
+		tapTapBankClient.upgradeUser(user);
 	}
 
 	private Transaction createTransaction() {
@@ -79,7 +81,7 @@ public class Main {
 		String lastName = "Smith"+postfix;
 		String email = "john"+postfix+"@mail.com";
 		String password = "securePassword";
-        return new User(firstName, null, email, password);
+        return new User(firstName, lastName, email, password);
 	}
 
 
@@ -91,7 +93,7 @@ public class Main {
 	public Main()
 	{
 		// Load the logging configuration from the logging.properties file
-		String logPropsPath = TaptapHttpClientConfigs.class.getClassLoader().getResource("").getPath()+"logging.properties";
+		String logPropsPath = Config.class.getClassLoader().getResource("").getPath()+"logging.properties";
 		System.setProperty("java.util.logging.config.file", logPropsPath);
 	}
 

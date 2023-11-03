@@ -3,8 +3,11 @@ package taptap.util;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 import com.google.gson.Gson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import taptap.exception.TapTapClientException;
 import taptap.model.User;
+import taptap.test.Main;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -18,6 +21,8 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
 public class Utils {
+
+    private static final Logger logger = LoggerFactory.getLogger(Utils.class.getName());
 
     public static String generateTransactionId() {
         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
