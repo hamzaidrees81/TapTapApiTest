@@ -7,8 +7,10 @@ import taptap.exception.TapTapClientException;
 import taptap.model.User;
 
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.UUID;
 import java.io.StringWriter;
 import javax.xml.bind.JAXBContext;
@@ -38,7 +40,7 @@ public class Utils {
         }
     }
 
-    public String ObjectToJson(Object object) {
+    public static String convertObjectToJson(Object object) {
         Gson gson = new Gson();
         // Convert the object to JSON
         return gson.toJson(object);
@@ -61,4 +63,14 @@ public class Utils {
         return hashtext;
     }
 
+    public static String prepareBasicAuthCreds(User user) {
+
+        if (user.email() != null && user.password() != null) {
+            // Combine username and password with a colon and encode in Base64
+//            String credentials = user.email() + ":" + getMd5FromString(user.password());
+            String credentials = user.email() + ":" + getMd5FromString(user.password());
+            return Base64.getEncoder().encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
+        } else
+            throw new TapTapClientException("Unable to prepare basic auth. Please validate if credentails are provided.");
+    }
 }

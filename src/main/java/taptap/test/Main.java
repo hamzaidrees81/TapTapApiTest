@@ -1,14 +1,14 @@
 package taptap.test;
 
-import taptap.client.impl.TapTapBankClientImpl;
 import taptap.client.TaptapBankClient;
+import taptap.client.impl.TapTapBankClientImpl;
 import taptap.config.ConfigurationLoader;
 import taptap.config.TaptapHttpClientConfigs;
 import taptap.exception.TapTapClientException;
+import taptap.model.Recipient;
+import taptap.model.Transaction;
 import taptap.model.User;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.http.HttpClient;
 import java.time.Duration;
 import java.util.UUID;
@@ -38,20 +38,38 @@ public class Main {
 		//create http client
 		HttpClient httpClient = createHttpClient();
 
-		//create tap tap client
-		TaptapBankClient tapTapBankClient = new TapTapBankClientImpl(clientConfigs,httpClient);
 
 		User user = createUniqueUser();
+		Transaction transaction = createTransaction();
+
+		//create tap tap client
+		TaptapBankClient tapTapBankClient = new TapTapBankClientImpl(clientConfigs,httpClient);
 		tapTapBankClient.addUser(user);
+		tapTapBankClient.makeTransaction(user,transaction);
+
+	}
+
+	private Transaction createTransaction() {
+
+		String postfix = generateRandomUserPostfix();
+		String firstName = "John"+postfix;
+		String lastName = "Smith"+postfix;
+		String email = "john"+postfix+"@mail.com";
+		String phone = "0123456789";
+		String nickName = "Johny";
+		String walletName = "";
+		double amount = 500;
+
+		Recipient recipient = new Recipient(firstName,lastName,email,phone,nickName,walletName);
+		return  new Transaction(recipient,amount);
 	}
 
 	private static HttpClient createHttpClient() {
-		HttpClient httpClient =  HttpClient.newBuilder()
+        return HttpClient.newBuilder()
 				.version(HttpClient.Version.HTTP_2) // Set HTTP version
 				.followRedirects(HttpClient.Redirect.NORMAL) // Handle redirects
 				.connectTimeout(Duration.ofSeconds(10)) // Set connection timeout
 				.build();
-		return httpClient;
 	}
 
 	public User createUniqueUser()
@@ -61,13 +79,12 @@ public class Main {
 		String lastName = "Smith"+postfix;
 		String email = "john"+postfix+"@mail.com";
 		String password = "securePassword";
-        return new User(firstName, lastName, email, password);
+        return new User(firstName, null, email, password);
 	}
 
 
 	public   String generateRandomUserPostfix() {
 		String postfix = UUID.randomUUID().toString().replaceAll("-", "");
-		// Take the first 10 characters of the UUID
 		return postfix.substring(0, 3);
 	}
 

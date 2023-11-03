@@ -1,5 +1,5 @@
 host: http://ec2-44-202-225-54.compute-1.amazonaws.com
 port: 3000
 createUserApi: /create-user
-makeTransactionApi: /transactions/tid
+makeTransactionApi: /transactions/{tid}
 upgradeUserApi: /upgrade-user
