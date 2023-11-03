@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import taptap.exception.TapTapClientException;
 import taptap.model.User;
-import taptap.test.Main;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -15,10 +14,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.UUID;
-import java.io.StringWriter;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 
 public class Utils {
 
@@ -58,7 +53,6 @@ public class Utils {
         try {
             md = MessageDigest.getInstance(algorithm);
         } catch (NoSuchAlgorithmException e) {
-            // TODO Auto-generated catch block
             throw new TapTapClientException("Invalid algorithm for hashing: "+algorithm, e);
 
         }

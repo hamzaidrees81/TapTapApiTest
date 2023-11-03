@@ -2,16 +2,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import taptap.client.TaptapBankClient;
 import taptap.client.impl.TapTapBankClientImpl;
-import taptap.config.Config;
+import taptap.config.TapTapClientConfig;
 import taptap.exception.DataValidationException;
 import taptap.exception.UserAlreadyExistsException;
 import taptap.model.User;
 
-import java.io.IOException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -24,7 +22,7 @@ public class TapTapBankClientTest {
     public void testAddUserWithEmptyLastName() {
 
         // Create a mock for TaptapHttpClientConfigs and HttpClient
-        Config clientConfigs = Mockito.mock(Config.class);
+        TapTapClientConfig clientConfigs = Mockito.mock(TapTapClientConfig.class);
 
         HttpClient httpClient = Mockito.mock(HttpClient.class);
 
@@ -53,7 +51,7 @@ public class TapTapBankClientTest {
 
         when(httpClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class))).thenReturn(response);
 
-        Config taptapClientConfigs = Mockito.mock(Config.class);
+        TapTapClientConfig taptapClientConfigs = Mockito.mock(TapTapClientConfig.class);
         when(taptapClientConfigs.getHost()).thenReturn("http://ec2-44-202-225-54.compute-1.amazonaws.com");
         when(taptapClientConfigs.getPort()).thenReturn("8080");
         when(taptapClientConfigs.getCreateUserApi()).thenReturn("/create");
@@ -78,7 +76,7 @@ public class TapTapBankClientTest {
 
         when(httpClient.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class))).thenReturn(response);
 
-        Config taptapClientConfigs = Mockito.mock(Config.class);
+        TapTapClientConfig taptapClientConfigs = Mockito.mock(TapTapClientConfig.class);
         when(taptapClientConfigs.getHost()).thenReturn("http://ec2-44-202-225-54.compute-1.amazonaws.com");
         when(taptapClientConfigs.getPort()).thenReturn("8080");
         when(taptapClientConfigs.getCreateUserApi()).thenReturn("/create");

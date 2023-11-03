@@ -8,7 +8,7 @@ import java.net.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import taptap.client.TaptapBankClient;
-import taptap.config.Config;
+import taptap.config.TapTapClientConfig;
 import taptap.exception.TapTapClientException;
 import taptap.model.Transaction;
 import taptap.model.User;
@@ -25,13 +25,13 @@ import static taptap.model.Constants.*;
 public class TapTapBankClientImpl implements TaptapBankClient {
 
     private static final Logger logger = LoggerFactory.getLogger(TapTapBankClientImpl.class.getName());
-    private final Config config;
+    private final TapTapClientConfig tapTapClientConfig;
     private final HttpClient httpClient;
 
 
 
-    public TapTapBankClientImpl(Config configs, HttpClient httpClient) {
-        this.config = configs;
+    public TapTapBankClientImpl(TapTapClientConfig configs, HttpClient httpClient) {
+        this.tapTapClientConfig = configs;
         this.httpClient = httpClient;
     }
 
@@ -49,6 +49,7 @@ public class TapTapBankClientImpl implements TaptapBankClient {
     public boolean makeTransaction(@Valid User user, @Valid Transaction transaction) {
 
         Validator.validateTransaction(transaction);
+
         logger.info("Initiating make transaction workflow");
         boolean response = makeTransactionRequest(user,transaction);
         logger.info("Transaction made successfully!");
@@ -68,18 +69,18 @@ public class TapTapBankClientImpl implements TaptapBankClient {
 
         //prepare credentials from user
         String basicAuthCreds = Utils.prepareBasicAuthCreds(user);
-        return makeRequest(config.getUpgradeUserApi(), CONTENT_TYPE_XML, "", basicAuthCreds, METHOD_POST);
+        return makeRequest(tapTapClientConfig.getUpgradeUserApi(), CONTENT_TYPE_XML, "", basicAuthCreds, METHOD_POST);
     }
 
     private boolean makeAddUserRequest(User user) throws TapTapClientException {
 
-        return makeRequest(config.getCreateUserApi(), CONTENT_TYPE_XML, Utils.convertUserToXML(user),null, METHOD_POST);
+        return makeRequest(tapTapClientConfig.getCreateUserApi(), CONTENT_TYPE_XML, Utils.convertUserToXML(user),null, METHOD_POST);
     }
 
     private boolean makeTransactionRequest(User user, Transaction transaction) {
         //prepare credentials from user
         String basicAuthCreds = Utils.prepareBasicAuthCreds(user);
-        String apiEndpoint = config.getMakeTransactionApi().replace("{tid}",Utils.generateTransactionId());
+        String apiEndpoint = tapTapClientConfig.getMakeTransactionApi().replace("{tid}",Utils.generateTransactionId());
 
         return makeRequest(apiEndpoint, CONTENT_TYPE_JSON, Utils.convertObjectToJson(transaction), basicAuthCreds, METHOD_PUT);
     }
@@ -95,8 +96,7 @@ public class TapTapBankClientImpl implements TaptapBankClient {
 
             request = prepareRequest(url, contentType, payload, credentials, method);
 
-            logger.info( "Sending request.");
-
+            logger.debug( "Sending http request.");
             response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             logger.debug(String.format("Request completed successfully. Status : %s ,  Response body: %s",response.statusCode(),response.body()));
 
@@ -106,13 +106,14 @@ public class TapTapBankClientImpl implements TaptapBankClient {
             throw tapClientException;
         }
 
-
         return HandleClientResponse.handleApiResponse(response);
     }
 
     private HttpRequest prepareRequest(String url, String contentType, String payload, String credentials, String method) {
 
-        String requestUrl = config.getHost() + ":" + config.getPort() + url;
+        logger.debug("Preparing request...");
+
+        String requestUrl = prepareUrl(url);
 
         HttpRequest request;
         HttpRequest.Builder requestBuilder = HttpRequest.newBuilder(URI.create(requestUrl))
@@ -130,9 +131,18 @@ public class TapTapBankClientImpl implements TaptapBankClient {
         if(credentials !=null&&!credentials.isEmpty())
             requestBuilder = requestBuilder.header("Authorization", "Basic " + credentials);
 
-
         request = requestBuilder.build();
+
+        logger.debug("HTTP Request: {}", request);
         return request;
+    }
+
+    private String prepareUrl(String url) {
+
+        if(url.charAt(0)!='/')
+            url = "/"+url;
+
+        return tapTapClientConfig.getHost() + ":" + tapTapClientConfig.getPort() + url;
     }
 
 }

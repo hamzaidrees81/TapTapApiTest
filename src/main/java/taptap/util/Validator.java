@@ -6,7 +6,6 @@ import taptap.exception.DataValidationException;
 import taptap.model.Recipient;
 import taptap.model.Transaction;
 import taptap.model.User;
-import taptap.test.Main;
 
 public class Validator {
 

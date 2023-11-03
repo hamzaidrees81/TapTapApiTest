@@ -14,20 +14,20 @@ public class ConfigurationLoader {
     static String configFileName="config.yaml";
 
 
-    public static Config loadConfiguration(String configFileName) throws TapTapClientException {
+    public static TapTapClientConfig loadConfiguration(String configFileName) throws TapTapClientException {
 
-        logger.info("Loading configuration from "+configFileName);
+        logger.debug("Loading configuration from "+configFileName);
 
         if (configFileName == null)
             configFileName = ConfigurationLoader.configFileName;
 
         Yaml yaml = new Yaml();
-        try (InputStream inputStream = Config.class.getClassLoader().getResourceAsStream(configFileName)) {
+        try (InputStream inputStream = TapTapClientConfig.class.getClassLoader().getResourceAsStream(configFileName)) {
 
             logger.debug("Configuration file opened, loading into object");
 
             Map<String, Object> data = yaml.load(inputStream);
-            return yaml.loadAs(yaml.dump(data), Config.class);
+            return yaml.loadAs(yaml.dump(data), TapTapClientConfig.class);
         }
         catch (Exception e) {
             TapTapClientException tapClientException =  new TapTapClientException("Error in reading configuration file. ",e);

@@ -5,10 +5,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import taptap.exception.InvalidResponseException;
-import taptap.exception.NotEnoughVolumeException;
-import taptap.exception.TapTapClientException;
-import taptap.exception.UserAlreadyExistsException;
+import taptap.exception.*;
 
 import java.net.http.HttpResponse;
 
@@ -19,12 +16,12 @@ public class HandleClientResponse {
 
     public static boolean handleApiResponse(HttpResponse<String> response) {
 
-        logger.info("Reading response...");
+        logger.debug("Reading response...");
 
         int statusCode = response.statusCode();
 
         if (statusCode == 200) {
-            logger.info("Request was successful.");
+            logger.debug("Request was successful.");
             return true;
         }
 
@@ -72,6 +69,14 @@ public class HandleClientResponse {
             throw notEnoughVolumeException;
         }
 
+        if(responseErrorMsg.contains("Can't sent less than"))
+        {
+            TransctionFailedException transctionFailedException = new TransctionFailedException("Error: Httpstatus: "+statusCode+" - error: Transaction amount must be greater than 2.");
+            logger.error( transctionFailedException.toString(), transctionFailedException);
+            throw transctionFailedException;
+
+        }
+
         InvalidResponseException invalidResponseException = new InvalidResponseException("Error: Httpstatus: "+statusCode+" - error: "+responseErrorMsg);
         logger.error( invalidResponseException.toString(), invalidResponseException);
         throw invalidResponseException;
@@ -80,7 +85,7 @@ public class HandleClientResponse {
 
     private static String extractResponseError(String responseBody) {
 
-        logger.info("Parsing response to extract error");
+        logger.debug("Parsing response to extract error");
         Document doc = Jsoup.parse(responseBody);
         Element preElement = doc.select("pre").first();
 
